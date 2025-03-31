@@ -1,0 +1,1 @@
+C:\Users\Senda\OneDrive\Documents\GitHub\KataReservation\KataReservation.Web\katareservation.web.client\obj\Debug\katareservation.web.client.esproj.CoreCompileInputs.cache

@@ -1,0 +1,30 @@
+{
+    "/swagger": {
+        "target": "https://localhost:8090",
+        "secure": false
+    },
+    "/api/**": {
+        "target": "https://localhost:8090",
+        "secure": false
+    },
+    "/remote/**": {
+        "target": "https://localhost:7002",
+        "secure": false,
+        "changeOrigin": true
+      },
+      "/bff/**": {
+        "target": "https://localhost:7002",
+        "secure": false,
+        "changeOrigin": true
+      },
+      "/sign-oidc": {
+        "target": "https://localhost:7002",
+        "secure": false,
+        "changeOrigin": true
+      },
+      "/signout-callback-oidc": {
+        "target": "https://localhost:7002",
+        "secure": false,
+        "changeOrigin": true
+      }
+}
