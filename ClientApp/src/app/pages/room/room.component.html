@@ -1,18 +1,58 @@
-<h2>Room</h2>
-
-<div class="room-list">
-    <h3>Liste des Salles</h3>
-    <ul>
-        <li *ngFor="let room of rooms">
-            <span>{{ room.RoomName }}</span>
-        </li>
-    </ul>
-    <div *ngIf="rooms.length === 0">Aucune salle disponible.</div>
-</div>
+<h2>Gestion des Salles</h2>
 
 <!-- Formulaire pour créer une nouvelle salle -->
-<div class="create-room">
+<div class="room-form">
     <h3>Créer une nouvelle salle</h3>
-    <input type="text" [(ngModel)]="newRoomName" placeholder="Nom de la salle" />
-    <button (click)="createRoom()">Créer</button>
+    <div class="form-group">
+        <input 
+            type="text" 
+            [(ngModel)]="newRoomName" 
+            placeholder="Nom de la salle" 
+            class="form-control"
+        />
+        <button 
+            (click)="createRoom()" 
+            [disabled]="!newRoomName"
+            class="btn btn-primary"
+        >
+            Créer
+        </button>
+    </div>
+</div>
+
+<!-- Liste des salles -->
+<div class="room-list">
+    <h3>Liste des Salles</h3>
+    <div class="room-items">
+        <div *ngFor="let room of rooms" class="room-item">
+            <div class="room-info">
+                <span class="room-name">{{ room.RoomName }}</span>
+                <div class="room-actions">
+                    <button class="btn btn-edit" (click)="editRoom(room)">Modifier</button>
+                    <button class="btn btn-delete" (click)="deleteRoom(room.Id)">Supprimer</button>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="rooms.length === 0" class="no-rooms">Aucune salle disponible.</div>
+    </div>
+</div>
+
+<!-- Formulaire pour modifier une salle -->
+<div class="edit-room" *ngIf="editingRoom">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+        <h3>Modifier la salle</h3>
+        <div class="form-group">
+            <input 
+                type="text" 
+                [(ngModel)]="editingRoom.RoomName" 
+                placeholder="Nom de la salle" 
+                class="form-control"
+            />
+            <div class="button-group">
+                <button class="btn btn-update" (click)="updateRoom()">Mettre à jour</button>
+                <button class="btn btn-cancel" (click)="cancelEdit()">Annuler</button>
+            </div>
+        </div>
+    </div>
 </div>

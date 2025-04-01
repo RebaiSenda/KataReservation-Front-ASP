@@ -13,6 +13,7 @@ import { PersonRequest } from '../../requests/person.request';
     standalone: true,
     imports: [CommonModule, FormsModule]
 })
+
 export class PersonComponent implements OnInit {
     persons: Person[] = [];
     newPerson: PersonRequest = { firstName: '', lastName: '' };
