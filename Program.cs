@@ -46,6 +46,8 @@ app.UseDefaultFiles();
     app.UseAuthorization();
     app.MapBffManagementEndpoints();
     app.MapRemoteBffApiEndpoint("/remote/rooms", $"{"https://localhost:5002"}/api/rooms")
-       .RequireAccessToken(TokenType.User);
-    app.MapFallbackToFile("index.html");
+   .RequireAccessToken(TokenType.User);
+    app.MapRemoteBffApiEndpoint("/remote/persons", $"{"https://localhost:5002"}/api/persons")
+    .RequireAccessToken(TokenType.User);
+app.MapFallbackToFile("index.html");
     app.Run();

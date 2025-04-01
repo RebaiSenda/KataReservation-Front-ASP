@@ -1,3 +1,59 @@
-<h2>Person</h2>
+<h2>Gestion des Personnes</h2>
 
-Hello person
+<!-- Formulaire pour ajouter une nouvelle personne -->
+<div class="person-form">
+    <h3>Ajouter une Personne</h3>
+    <form (ngSubmit)="addPerson()" #personForm="ngForm">
+        <input
+            type="text"
+            [(ngModel)]="newPerson.firstName"
+            name="firstName"
+            placeholder="Prénom"
+            required
+        />
+        <input
+            type="text"
+            [(ngModel)]="newPerson.lastName"
+            name="lastName"
+            placeholder="Nom"
+            required
+        />
+        <button type="submit" [disabled]="personForm.invalid">Ajouter</button>
+    </form>
+</div>
+
+<!-- Liste des personnes -->
+<div class="person-list">
+    <h3>Liste des Personnes</h3>
+    <ul>
+        <li *ngFor="let person of persons">
+            {{ person.firstName }} {{ person.lastName }}
+            <button (click)="editPerson(person)">Modifier</button>
+            <button (click)="deletePerson(person.id)">Supprimer</button>
+        </li>
+    </ul>
+    <div *ngIf="persons.length === 0">Aucune personne disponible.</div>
+</div>
+
+<!-- Formulaire pour modifier une personne -->
+<div class="edit-person" *ngIf="editingPerson">
+    <h3>Modifier la Personne</h3>
+    <form (ngSubmit)="updatePerson(editingPerson)" #editForm="ngForm">
+        <input
+            type="text"
+            [(ngModel)]="editingPerson.firstName"
+            name="editFirstName"
+            placeholder="Prénom"
+            required
+        />
+        <input
+            type="text"
+            [(ngModel)]="editingPerson.lastName"
+            name="editLastName"
+            placeholder="Nom"
+            required
+        />
+        <button type="submit" [disabled]="editForm.invalid">Mettre à jour</button>
+        <button type="button" (click)="cancelEdit()">Annuler</button>
+    </form>
+</div>

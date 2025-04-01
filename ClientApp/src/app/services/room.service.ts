@@ -1,31 +1,37 @@
-// File: src/app/services/room.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import Room from '../models/room';
+import { environment } from '../../environments/environment';
 
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import Room from "../models/room";
-import { environment } from '../../environments/environment'; 
+@Injectable({ providedIn: 'root' })
+export default class RoomService {
+    private apiUrl = `${environment.apiUrl}/rooms`;
 
-@Injectable({ providedIn: "root" })
-export default class AppRoomService {
-    private apiUrl = `${environment.apiUrl}/remote/rooms`; 
+    constructor(private http: HttpClient) {}
 
-    constructor(private readonly http: HttpClient) { }
+    // Liste toutes les salles
+    list(): Observable<Room[]> {
+        return this.http.get<Room[]>(this.apiUrl);
+    }
 
-    // Create a new room
-    add = (room: Room) => this.http.post<Room>(this.apiUrl, { roomName: room.RoomName });
+    // Obtenir une salle par ID
+    get(id: number): Observable<Room> {
+        return this.http.get<Room>(`${this.apiUrl}/${id}`);
+    }
 
-    // Delete a room by ID
-    delete = (id: number) => this.http.delete(`${this.apiUrl}/${id}`);
+    // Créer une nouvelle salle
+    add(room: Room): Observable<Room> {
+        return this.http.post<Room>(this.apiUrl, { roomName: room.RoomName });
+    }
 
-    // Get a room by ID
-    get = (id: number) => this.http.get<Room>(`${this.apiUrl}/${id}`);
+    // Mettre à jour une salle
+    update(id: number, room: Room): Observable<Room> {
+        return this.http.put<Room>(`${this.apiUrl}/${id}`, { roomName: room.RoomName });
+    }
 
-    // Inactivate a room (if this is a specific action you need)
-    inactivate = (id: number) => this.http.patch(`${this.apiUrl}/${id}/inactivate`, {});
-
-    // List all rooms
-    list = () => this.http.get<Room[]>(this.apiUrl);
-
-    // Update a room by ID
-    update = (id: number, room: Room) => this.http.put<Room>(`${this.apiUrl}/${id}`, { roomName: room.RoomName });
+    // Supprimer une salle
+    delete(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
 }

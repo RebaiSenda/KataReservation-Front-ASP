@@ -1,3 +1,18 @@
 <h2>Room</h2>
 
-Hello Room!!
+<div class="room-list">
+    <h3>Liste des Salles</h3>
+    <ul>
+        <li *ngFor="let room of rooms">
+            <span>{{ room.RoomName }}</span>
+        </li>
+    </ul>
+    <div *ngIf="rooms.length === 0">Aucune salle disponible.</div>
+</div>
+
+<!-- Formulaire pour créer une nouvelle salle -->
+<div class="create-room">
+    <h3>Créer une nouvelle salle</h3>
+    <input type="text" [(ngModel)]="newRoomName" placeholder="Nom de la salle" />
+    <button (click)="createRoom()">Créer</button>
+</div>

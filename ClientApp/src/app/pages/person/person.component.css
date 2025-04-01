@@ -1,0 +1,171 @@
+/* Styles généraux */
+:host {
+    display: block;
+    font-family: 'Arial', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5271ff;
+  }
+  
+  h3 {
+    color: #444;
+    margin-top: 20px;
+    margin-bottom: 15px;
+  }
+  
+  /* Formulaires */
+  .person-form, .edit-person {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  
+  input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    flex-grow: 1;
+    min-width: 200px;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #5271ff;
+    box-shadow: 0 0 0 2px rgba(82, 113, 255, 0.2);
+  }
+  
+  button {
+    padding: 10px 15px;
+    background-color: #5271ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background-color: #3a5cff;
+  }
+  
+  button:disabled {
+    background-color: #a7b4ff;
+    cursor: not-allowed;
+  }
+  
+  button[type="button"] {
+    background-color: #6c757d;
+  }
+  
+  button[type="button"]:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Liste des personnes */
+  .person-list {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+  }
+  
+  li:hover {
+    background-color: #f1f3ff;
+  }
+  
+  li:last-child {
+    border-bottom: none;
+  }
+  
+  li button {
+    padding: 6px 10px;
+    margin-left: 8px;
+    font-size: 12px;
+  }
+  
+  li button:first-of-type {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  
+  li button:first-of-type:hover {
+    background-color: #e0a800;
+  }
+  
+  li button:last-of-type {
+    background-color: #dc3545;
+  }
+  
+  li button:last-of-type:hover {
+    background-color: #c82333;
+  }
+  
+  /* Message "Aucune personne" */
+  .person-list div:last-child {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  /* Responsive design */
+  @media screen and (max-width: 600px) {
+    form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    input {
+      min-width: 0;
+    }
+    
+    li {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    li button {
+      margin-top: 8px;
+      margin-left: 0;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      align-self: flex-end;
+    }
+  }
