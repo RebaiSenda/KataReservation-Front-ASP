@@ -1,112 +1,121 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
-import { firstValueFrom } from 'rxjs';
-import AppPersonService from '../../services/person.service'; 
+import { CommonModule ,NgIf,NgFor} from '@angular/common';
 import Person from '../../models/person';
-import { PersonRequest } from '../../requests/person.request';
+import PersonService from '../../services/person.service';
+import AppModalService from '../../services/modal.service';
+import { CreatePersonRequest, UpdatePersonRequest } from '../../requests/person.request';
 
 @Component({
-    selector: 'app-person',
-    templateUrl: './person.component.html',
-    styleUrls: ['./person.component.css'],
-    standalone: true,
-    imports: [CommonModule, FormsModule]
+  selector: 'app-person',
+  templateUrl: './person.component.html',
+  styleUrls: ['./person.component.css'],
+  imports: [CommonModule, NgIf, NgFor],
+  standalone: true  
 })
-
 export class PersonComponent implements OnInit {
-    persons: Person[] = [];
-    newPerson: PersonRequest = { firstName: '', lastName: '' };
-    editingPerson: Person | null = null;
+  persons: Person[] = [];
+  newPerson: CreatePersonRequest = { firstName: '', lastName: '' };
+  editingPerson: UpdatePersonRequest & { id: number } | null = null;
 
-    constructor(private personService: AppPersonService) {}
+  constructor(
+    private personService: PersonService,
+    private modalService: AppModalService
+  ) {}
 
-    async ngOnInit() {
-        await this.loadPersons();
-    }
+  ngOnInit(): void {
+    this.loadPersons();
+  }
 
-    private async loadPersons() {
-        try {
-            const response = await firstValueFrom(this.personService.list());
-            console.log('Réponse de l\'API:', response);
-            console.log('Type de réponse:', Array.isArray(response) ? 'Array' : typeof response);
-            
-            // Si la réponse n'est pas un tableau mais un objet avec une propriété data ou similaire
-            if (!Array.isArray(response) && typeof response === 'object') {
-                // Rechercher une propriété qui pourrait contenir le tableau
-                const possibleArrayProps = Object.keys(response).filter(key => 
-                    Array.isArray(response[key])
-                );
-                
-                if (possibleArrayProps.length > 0) {
-                    this.persons = response[possibleArrayProps[0]];
-                } else {
-                    // Si aucun tableau n'est trouvé, convertir l'objet en tableau
-                    const personArray = Object.values(response).filter(val => 
-                        typeof val === 'object' && val !== null && 'id' in val
-                    );
-                    this.persons = personArray as Person[];
-                }
-            } else {
-                // Si c'est déjà un tableau
-                this.persons = Array.isArray(response) ? response : [];
-            }
-        } catch (error) {
-            console.error('Erreur lors du chargement des personnes:', error);
-            this.persons = [];
-        }
-    }
+  loadPersons(): void {
+    this.personService.list().subscribe({
+      next: (data) => {
+        this.persons = data;
+      },
+      error: (err) => {
+        this.modalService.alert(`Erreur lors du chargement des personnes: ${err.message}`);
+      }
+    });
+  }
 
-    async addPerson() {
-        try {
-            const person = await firstValueFrom(this.personService.add(this.newPerson));
-            console.log('Personne ajoutée:', person);
-            
-            // S'assurer que this.persons est un tableau
-            if (!Array.isArray(this.persons)) {
-                this.persons = [];
-            }
-            
-            if (person) {
-                this.persons = [...this.persons, person]; // Utiliser un nouveau tableau
-                this.newPerson = { firstName: '', lastName: '' };
-            } else {
-                console.error('La réponse de l\'ajout n\'est pas valide:', person);
-            }
-        } catch (error) {
-            console.error('Erreur lors de l\'ajout de la personne:', error);
-        }
-    }
+  addPerson(): void {
+    this.personService.add(this.newPerson).subscribe({
+      next: () => {
+        this.loadPersons();
+        this.newPerson = { firstName: '', lastName: '' };
+        this.modalService.alert('Personne ajoutée avec succès');
+      },
+      error: (err) => {
+        this.modalService.alert(`Erreur lors de l'ajout: ${err.message}`);
+      }
+    });
+  }
 
-    async deletePerson(id: number) {
-        try {
-            await firstValueFrom(this.personService.delete(id));
-            this.persons = this.persons.filter(person => person.id !== id);
-        } catch (error) {
-            console.error('Erreur lors de la suppression de la personne:', error);
-        }
-    }
+  editPerson(person: Person): void {
+    this.editingPerson = {
+      id: person.id,
+      firstName: person.firstName,
+      lastName: person.lastName
+    };
+  }
 
-    editPerson(person: Person) {
-        this.editingPerson = { ...person };
-    }
+  updatePerson(): void {
+    if (!this.editingPerson) return;
+    
+    this.personService.update(this.editingPerson.id, this.editingPerson).subscribe({
+      next: () => {
+        this.loadPersons();
+        this.cancelEdit();
+        this.modalService.alert('Personne mise à jour avec succès');
+      },
+      error: (err) => {
+        this.modalService.alert(`Erreur lors de la mise à jour: ${err.message}`);
+      }
+    });
+  }
 
-    async updatePerson(person: Person) {
-        try {
-            await firstValueFrom(this.personService.update(person));
-            const index = this.persons.findIndex(p => p.id === person.id);
-            if (index !== -1) {
-                const updatedPersons = [...this.persons];
-                updatedPersons[index] = person;
-                this.persons = updatedPersons;
-            }
-            this.editingPerson = null;
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour de la personne:', error);
-        }
-    }
+  deletePerson(id: number): void {
+    this.personService.delete(id).subscribe({
+      next: () => {
+        this.loadPersons();
+        this.modalService.alert('Personne supprimée avec succès');
+      },
+      error: (err) => {
+        this.modalService.alert(`Erreur lors de la suppression: ${err.message}`);
+      }
+    });
+  }
 
-    cancelEdit() {
-        this.editingPerson = null;
-    }
+  cancelEdit(): void {
+    this.editingPerson = null;
+  }
+
+  hasBookings(person: Person): boolean {
+    return person.bookings && person.bookings.length > 0;
+  }
+
+  getBookingsCount(person: Person): number {
+    return person.bookings ? person.bookings.length : 0;
+  }
+
+  updateFirstName(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.newPerson.firstName = target.value;
+  }
+
+  updateLastName(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.newPerson.lastName = target.value;
+  }
+
+  updateEditingFirstName(event: Event): void {
+    if (!this.editingPerson) return;
+    const target = event.target as HTMLInputElement;
+    this.editingPerson.firstName = target.value;
+  }
+
+  updateEditingLastName(event: Event): void {
+    if (!this.editingPerson) return;
+    const target = event.target as HTMLInputElement;
+    this.editingPerson.lastName = target.value;
+  }
 }

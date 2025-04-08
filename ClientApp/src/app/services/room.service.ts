@@ -1,28 +1,20 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import Room from '../models/room';
-import { environment } from '../../environments/environment';
 import { CreateRoomRequest, UpdateRoomRequest } from '../requests/room.request';
 import { RoomResponse, RoomsResponse } from '../responses/room.response';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export default class RoomService {
-    private apiUrl = environment.apiUrl; // Utiliser uniquement l'URL de base
-
-    constructor(private http: HttpClient) {}
+    constructor(private apiService: ApiService) {}
 
     // Liste toutes les salles
     list(): Observable<Room[]> {
-        return this.http.get<RoomsResponse>(`${this.apiUrl}/rooms`).pipe(
+        return this.apiService.get<RoomsResponse>('/rooms').pipe(
             map(response => {
                 if (response && response.rooms) {
-                    // Convertir le format de l'API en format local
-                    return response.rooms.map(room => ({
-                        Id: room.id,
-                        RoomName: room.roomName,
-                        Bookings: room.bookings || []
-                    }));
+                    return response.rooms.map(room => this.mapToRoom(room));
                 }
                 return [];
             })
@@ -31,12 +23,8 @@ export default class RoomService {
 
     // Obtenir une salle par ID
     get(id: number): Observable<Room> {
-        return this.http.get<RoomResponse>(`${this.apiUrl}/rooms/${id}`).pipe(
-            map(room => ({
-                Id: room.id,
-                RoomName: room.roomName,
-                Bookings: room.bookings || []
-            }))
+        return this.apiService.get<RoomResponse>(`/rooms/${id}`).pipe(
+            map(response => this.mapToRoom(response))
         );
     }
 
@@ -45,12 +33,8 @@ export default class RoomService {
         const request: CreateRoomRequest = {
             roomName: room.RoomName
         };
-        return this.http.post<RoomResponse>(`${this.apiUrl}/rooms`, request).pipe(
-            map(response => ({
-                Id: response.id,
-                RoomName: response.roomName,
-                Bookings: response.bookings || []
-            }))
+        return this.apiService.post<RoomResponse>('/rooms', request).pipe(
+            map(response => this.mapToRoom(response))
         );
     }
 
@@ -59,17 +43,22 @@ export default class RoomService {
         const request: UpdateRoomRequest = {
             roomName: room.RoomName
         };
-        return this.http.put<RoomResponse>(`${this.apiUrl}/rooms/${id}`, request).pipe(
-            map(response => ({
-                Id: response.id,
-                RoomName: response.roomName,
-                Bookings: response.bookings || []
-            }))
+        return this.apiService.put<RoomResponse>(`/rooms/${id}`, request).pipe(
+            map(response => this.mapToRoom(response))
         );
     }
 
     // Supprimer une salle
     delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/rooms/${id}`);
+        return this.apiService.delete<void>(`/rooms/${id}`);
+    }
+
+    // Méthode utilitaire pour convertir la réponse de l'API en modèle Room
+    private mapToRoom(response: RoomResponse): Room {
+        return {
+            Id: response.id,
+            RoomName: response.roomName,
+            Bookings: response.bookings || []
+        };
     }
 }

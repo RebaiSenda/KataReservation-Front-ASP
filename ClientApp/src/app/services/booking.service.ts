@@ -1,20 +1,56 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import Booking from "../models/booking";
+// services/booking.service.ts
+import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import Booking from '../models/booking';
+import { ApiService } from './api.service';
+import { CreateBookingRequest } from '../requests/booking.request';
+import { BookingResponse } from '../responses/booking.response';
 
-@Injectable({ providedIn: "root" })
-export default class AppBookingService {
-    constructor(private readonly http: HttpClient) { }
+@Injectable({ providedIn: 'root' })
+export default class BookingService {
+    constructor(private apiService: ApiService) {}
 
-    add = (b: Booking) => this.http.post<number>("api/bookings", b);
+    // Créer une nouvelle réservation
+    create(booking: Booking): Observable<Booking> {
+        const request: CreateBookingRequest = {
+            roomId: booking.RoomId,
+            personId: booking.PersonId,
+            bookingDate: this.formatDate(booking.BookingDate),
+            startSlot: booking.StartSlot,
+            endSlot: booking.EndSlot
+        };
 
-    delete = (id: number) => this.http.delete(`api/bookings/${id}`);
+        return this.apiService.post<BookingResponse>('/bookings', request).pipe(
+            map(response => this.mapToBooking(response))
+        );
+    }
 
-    get = (id: number) => this.http.get<Booking>(`api/bookings/${id}`);
+    // Obtenir une réservation par ID
+    get(id: number): Observable<Booking> {
+        return this.apiService.get<BookingResponse>(`/bookings/${id}`).pipe(
+            map(response => this.mapToBooking(response))
+        );
+    }
 
-    inactivate = (id: number) => this.http.patch(`api/bookings/${id}/inactivate`, {});
+    // Supprimer une réservation
+    delete(id: number): Observable<void> {
+        return this.apiService.delete<void>(`/bookings/${id}`);
+    }
 
-    list = () => this.http.get<Booking[]>("api/bookings");
+    // Méthode utilitaire pour convertir la réponse de l'API en modèle Booking
+    private mapToBooking(response: BookingResponse): Booking {
+        return {
+            Id: 0, // L'ID n'est pas retourné dans la réponse d'après l'API
+            RoomId: response.roomId,
+            PersonId: response.personId,
+            BookingDate: new Date(response.bookingDate),
+            StartSlot: response.startSlot,
+            EndSlot: response.endSlot
+        };
+    }
 
-    update = (r: Booking) => this.http.put(`api/bookings/${r.Id}`, r);
+    // Formater une date pour l'API (YYYY-MM-DD)
+    private formatDate(date: Date): string {
+        return date.toISOString().split('T')[0];
+    }
 }

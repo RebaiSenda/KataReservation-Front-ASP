@@ -1,3 +1,4 @@
+// models/booking.ts
 import Person from "./person";
 import Room from "./room";
 
@@ -8,6 +9,6 @@ export default interface Booking {
     BookingDate: Date;
     StartSlot: number;
     EndSlot: number;
-    Person: Person 
-    Room: Room;
+    Person?: Person;
+    Room?: Room;
 }

@@ -1,5 +1,13 @@
-import Person from '../models/person';
+// responses/person.response.ts
+import { BookingResponse } from './booking.response';
 
-export interface PersonResponse extends Person {
-    // Vous pouvez ajouter des propriétés supplémentaires si nécessaire
+export interface PersonResponse {
+  id: number;
+  firstName: string;
+  lastName: string;
+  bookings?: BookingResponse[];
+}
+
+export interface PersonsResponse {
+  persons: PersonResponse[];
 }

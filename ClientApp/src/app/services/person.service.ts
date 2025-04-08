@@ -1,39 +1,68 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { environment } from '../../environments/environment';
-import { Observable } from "rxjs";
-import Person from "../models/person";
-import { PersonRequest } from "../requests/person.request";
-import { PersonResponse } from "../responses/person.response";
+import { Injectable } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import Person from '../models/person';
+import Booking from '../models/booking';
+import { ApiService } from './api.service';
+import { CreatePersonRequest, UpdatePersonRequest } from '../requests/person.request';
+import { PersonResponse, PersonsResponse } from '../responses/person.response';
+import { BookingResponse } from '../responses/booking.response';
 
-@Injectable({ providedIn: "root" })
-export default class AppPersonService {
-    private apiUrl = environment.apiUrl; // Utiliser l'URL de l'environnement
+@Injectable({
+  providedIn: 'root'
+})
+export default class PersonService {
+  constructor(private apiService: ApiService) {}
 
-    constructor(private readonly http: HttpClient) {}
+  list(): Observable<Person[]> {
+    return this.apiService.get<PersonsResponse>('/persons').pipe(
+      map(response => {
+        if (response && response.persons) {
+          return response.persons.map(person => this.mapToPerson(person));
+        }
+        return [];
+      })
+    );
+  }
 
-    // Méthode pour ajouter une nouvelle personne
-    add(user: PersonRequest): Observable<PersonResponse> {
-        return this.http.post<PersonResponse>(`${this.apiUrl}/persons`, user);
-    }
+  get(id: number): Observable<Person> {
+    return this.apiService.get<PersonResponse>(`/persons/${id}`).pipe(
+      map(response => this.mapToPerson(response))
+    );
+  }
 
-    // Méthode pour supprimer une personne par ID
-    delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/persons/${id}`);
-    }
+  add(personRequest: CreatePersonRequest): Observable<Person> {
+    return this.apiService.post<PersonResponse>('/persons', personRequest).pipe(
+      map(response => this.mapToPerson(response))
+    );
+  }
 
-    // Méthode pour obtenir une personne par ID
-    get(id: number): Observable<PersonResponse> {
-        return this.http.get<PersonResponse>(`${this.apiUrl}/persons/${id}`);
-    }
+  update(id: number, personRequest: UpdatePersonRequest): Observable<Person> {
+    return this.apiService.put<PersonResponse>(`/persons/${id}`, personRequest).pipe(
+      map(response => this.mapToPerson(response))
+    );
+  }
 
-    // Méthode pour lister toutes les personnes
-    list(): Observable<PersonResponse[]> {
-        return this.http.get<PersonResponse[]>(`${this.apiUrl}/persons`);
-    }
+  delete(id: number): Observable<void> {
+    return this.apiService.delete<void>(`/persons/${id}`);
+  }
 
-    // Méthode pour mettre à jour une personne
-    update(p: Person): Observable<PersonResponse> {
-        return this.http.put<PersonResponse>(`${this.apiUrl}/persons/${p.id}`, p);
-    }
+  private mapToPerson(response: PersonResponse): Person {
+    return {
+      id: response.id,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      bookings: this.mapToBookings(response.bookings || [])
+    };
+  }
+
+  private mapToBookings(bookingResponses: BookingResponse[]): Booking[] {
+    return bookingResponses.map(booking => ({
+      Id: booking.id, // Utiliser l'ID de la réponse plutôt qu'un index
+      RoomId: booking.roomId,
+      PersonId: booking.personId,
+      BookingDate: new Date(booking.bookingDate),
+      StartSlot: booking.startSlot,
+      EndSlot: booking.endSlot
+    }));
+  }
 }
