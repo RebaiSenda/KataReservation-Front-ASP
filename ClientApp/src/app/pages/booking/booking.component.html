@@ -1,89 +1,85 @@
 <!-- components/booking/booking.component.html -->
 <div class="booking-container">
-  <h2>Gestion des Réservations</h2>
-
-  <!-- Formulaire de création de réservation -->
-  <div class="booking-form">
-      <h3>Créer une nouvelle réservation</h3>
-      
-      <!-- Messages d'erreur et de succès -->
-      <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
-      <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-      
-      <!-- Message de conflit et suggestions -->
-      <div *ngIf="conflictMessage" class="conflict-message">
-          <div class="alert alert-warning">{{ conflictMessage }}</div>
-          <div *ngIf="availableSlots && availableSlots.length > 0" class="available-slots">
-              <p>Créneaux disponibles :</p>
-              <div class="slot-buttons">
-                  <button 
-                      *ngFor="let slot of availableSlots" 
-                      class="btn btn-slot"
-                      (click)="useAvailableSlot(slot)"
-                  >
-                      {{ formatTime(slot) }} - {{ formatTime(slot + 1) }}
-                  </button>
-              </div>
-          </div>
-      </div>
-
-      <div class="form-group">
-          <label for="room">Salle :</label>
-          <select id="room" [(ngModel)]="newBooking.RoomId" class="form-control">
-              <option [value]="0">Sélectionner une salle</option>
-              <option *ngFor="let room of rooms" [value]="room.Id">{{ room.RoomName }}</option>
-          </select>
-      </div>
-
-      <div class="form-group">
-          <label for="person">Personne :</label>
-          <select id="person" [(ngModel)]="newBooking.PersonId" class="form-control">
-              <option [value]="0">Sélectionner une personne</option>
-              <option *ngFor="let person of persons" [value]="person.id">
-                  {{ person.firstName }} {{ person.lastName }}
-              </option>
-          </select>
-      </div>
-
-      <div class="form-group">
-          <label for="date">Date :</label>
-          <input 
-              type="date" 
-              id="date" 
-              [(ngModel)]="newBooking.BookingDate" 
-              class="form-control"
-          />
-      </div>
-
-      <div class="form-row">
-          <div class="form-group half-width">
-              <label for="startSlot">Heure de début :</label>
-              <select id="startSlot" [(ngModel)]="newBooking.StartSlot" class="form-control">
-                  <option *ngFor="let hour of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]" 
-                          [value]="hour">
-                      {{ formatTime(hour) }}
-                  </option>
-              </select>
-          </div>
-
-          <div class="form-group half-width">
-              <label for="endSlot">Heure de fin :</label>
-              <select id="endSlot" [(ngModel)]="newBooking.EndSlot" class="form-control">
-                  <option *ngFor="let hour of [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]" 
-                          [value]="hour">
-                      {{ formatTime(hour) }}
-                  </option>
-              </select>
-          </div>
-      </div>
-
-      <div class="form-actions">
-          <button 
-              (click)="createBooking()" 
-              class="btn btn-primary"
-          >
-              Créer la réservation
-          </button>
-      </div>
+    <h2>Gestion des Réservations</h2>
+  
+    <!-- Formulaire de création de réservation -->
+    <div class="booking-form">
+        <h3>Créer une nouvelle réservation</h3>
+        
+        <!-- Message de conflit et suggestions -->
+        <div *ngIf="conflictMessage" class="conflict-message">
+            <div class="alert alert-warning">{{ conflictMessage }}</div>
+            <div *ngIf="availableSlots && availableSlots.length > 0" class="available-slots">
+                <p>Créneaux disponibles :</p>
+                <div class="slot-buttons">
+                    <button 
+                        *ngFor="let slot of availableSlots" 
+                        class="btn btn-slot"
+                        (click)="useAvailableSlot(slot)"
+                    >
+                        {{ formatTime(slot) }} - {{ formatTime(slot + 1) }}
+                    </button>
+                </div>
+            </div>
+        </div>
+  
+        <div class="form-group">
+            <label for="room">Salle :</label>
+            <select id="room" [(ngModel)]="newBooking.RoomId" class="form-control">
+                <option [value]="0">Sélectionner une salle</option>
+                <option *ngFor="let room of rooms" [value]="room.Id">{{ room.RoomName }}</option>
+            </select>
+        </div>
+  
+        <div class="form-group">
+            <label for="person">Personne :</label>
+            <select id="person" [(ngModel)]="newBooking.PersonId" class="form-control">
+                <option [value]="0">Sélectionner une personne</option>
+                <option *ngFor="let person of persons" [value]="person.id">
+                    {{ person.firstName }} {{ person.lastName }}
+                </option>
+            </select>
+        </div>
+  
+        <div class="form-group">
+            <label for="date">Date :</label>
+            <input 
+                type="date" 
+                id="date" 
+                [(ngModel)]="bookingDateString" 
+                class="form-control"
+            />
+        </div>
+  
+        <div class="form-row">
+            <div class="form-group half-width">
+                <label for="startSlot">Heure de début :</label>
+                <select id="startSlot" [(ngModel)]="newBooking.StartSlot" class="form-control">
+                    <option *ngFor="let hour of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]" 
+                            [value]="hour">
+                        {{ formatTime(hour) }}
+                    </option>
+                </select>
+            </div>
+  
+            <div class="form-group half-width">
+                <label for="endSlot">Heure de fin :</label>
+                <select id="endSlot" [(ngModel)]="newBooking.EndSlot" class="form-control">
+                    <option *ngFor="let hour of [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]" 
+                            [value]="hour">
+                        {{ formatTime(hour) }}
+                    </option>
+                </select>
+            </div>
+        </div>
+  
+        <div class="form-actions">
+            <button 
+                (click)="createBooking()" 
+                class="btn btn-primary"
+            >
+                Créer la réservation
+            </button>
+        </div>
+    </div>
   </div>
-</div>

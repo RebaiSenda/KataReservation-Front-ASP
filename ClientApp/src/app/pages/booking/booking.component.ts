@@ -9,7 +9,7 @@ import RoomService from '../../services/room.service';
 import PersonService from '../../services/person.service';
 import Room from '../../models/room';
 import Person from '../../models/person';
-
+import AppModalService from '../../services/modal.service';
 
 @Component({
     selector: 'app-booking',
@@ -24,15 +24,17 @@ export default class BookingComponent implements OnInit {
     persons: Person[] = [];
     
     newBooking: Booking = this.initializeNewBooking();
-    errorMessage: string = '';
-    successMessage: string = '';
     availableSlots: number[] = [];
     conflictMessage: string = '';
+    
+    // Pour la liaison avec le datepicker HTML
+    bookingDateString: string = '';
     
     constructor(
         private bookingService: BookingService,
         private roomService: RoomService,
-        private personService: PersonService
+        private personService: PersonService,
+        private modalService: AppModalService
     ) {}
 
     async ngOnInit() {
@@ -40,6 +42,10 @@ export default class BookingComponent implements OnInit {
             this.loadRooms(),
             this.loadPersons()
         ]);
+        
+        // Initialiser la date au format string pour le datepicker
+        const today = new Date();
+        this.bookingDateString = this.formatDateForInput(today);
     }
 
     private initializeNewBooking(): Booking {
@@ -58,7 +64,7 @@ export default class BookingComponent implements OnInit {
             this.rooms = await firstValueFrom(this.roomService.list());
         } catch (error) {
             console.error("Erreur lors de la récupération des salles:", error);
-            this.errorMessage = "Erreur lors de la récupération des salles.";
+            this.modalService.alert("Erreur lors de la récupération des salles.");
         }
     }
 
@@ -67,21 +73,26 @@ export default class BookingComponent implements OnInit {
             this.persons = await firstValueFrom(this.personService.list());
         } catch (error) {
             console.error("Erreur lors de la récupération des personnes:", error);
-            this.errorMessage = "Erreur lors de la récupération des personnes.";
+            this.modalService.alert("Erreur lors de la récupération des personnes.");
         }
     }
 
     async createBooking() {
-        if (!this.validateBooking()) {
-            return;
-        }
-
-        this.clearMessages();
-        
+        // Conversion de la date string en objet Date avant l'envoi
         try {
-            await firstValueFrom(this.bookingService.create(this.newBooking));
-            this.successMessage = "Réservation créée avec succès.";
+            // Utiliser la valeur du champ date string pour créer un objet Date valide
+            this.newBooking.BookingDate = new Date(this.bookingDateString);
+            
+            if (!this.validateBooking()) {
+                return;
+            }
+            
+            this.clearMessages();
+            
+            await firstValueFrom(this.bookingService.create({ ...this.newBooking }));
+            this.modalService.alert("Réservation créée avec succès.");
             this.newBooking = this.initializeNewBooking();
+            this.bookingDateString = this.formatDateForInput(new Date());
         } catch (error: any) {
             console.error("Erreur lors de la création de la réservation:", error);
             
@@ -89,9 +100,9 @@ export default class BookingComponent implements OnInit {
             if (error.status === 409) { // Conflit
                 this.handleConflictError(error.error);
             } else if (error.status === 400) { // Erreur de validation
-                this.errorMessage = error.error || "Données de réservation invalides.";
+                this.modalService.alert(error.error || "Données de réservation invalides.");
             } else {
-                this.errorMessage = "Erreur lors de la création de la réservation.";
+                this.modalService.alert("Erreur lors de la création de la réservation: " + (error.message || 'Erreur inconnue'));
             }
         }
     }
@@ -103,29 +114,29 @@ export default class BookingComponent implements OnInit {
                 this.availableSlots = error.availableSlots;
             }
         } else {
-            this.errorMessage = "Conflit de réservation. Veuillez choisir un autre créneau.";
+            this.modalService.alert("Conflit de réservation. Veuillez choisir un autre créneau.");
         }
     }
 
     validateBooking(): boolean {
         if (!this.newBooking.RoomId) {
-            this.errorMessage = "Veuillez sélectionner une salle.";
+            this.modalService.alert("Veuillez sélectionner une salle.");
             return false;
         }
         if (!this.newBooking.PersonId) {
-            this.errorMessage = "Veuillez sélectionner une personne.";
+            this.modalService.alert("Veuillez sélectionner une personne.");
             return false;
         }
-        if (!this.newBooking.BookingDate) {
-            this.errorMessage = "Veuillez sélectionner une date.";
+        if (!this.bookingDateString) {
+            this.modalService.alert("Veuillez sélectionner une date.");
             return false;
         }
         if (this.newBooking.StartSlot >= this.newBooking.EndSlot) {
-            this.errorMessage = "L'heure de début doit être antérieure à l'heure de fin.";
+            this.modalService.alert("L'heure de début doit être antérieure à l'heure de fin.");
             return false;
         }
         if (this.newBooking.StartSlot < 1 || this.newBooking.EndSlot > 24) {
-            this.errorMessage = "Les créneaux doivent être compris entre 1 et 24.";
+            this.modalService.alert("Les créneaux doivent être compris entre 1 et 24.");
             return false;
         }
         
@@ -133,8 +144,6 @@ export default class BookingComponent implements OnInit {
     }
 
     clearMessages() {
-        this.errorMessage = '';
-        this.successMessage = '';
         this.conflictMessage = '';
         this.availableSlots = [];
     }
@@ -150,4 +159,11 @@ export default class BookingComponent implements OnInit {
         return `${slot.toString().padStart(2, '0')}:00`;
     }
     
+    // Formater la date pour l'input HTML (YYYY-MM-DD)
+    private formatDateForInput(date: Date): string {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 }
