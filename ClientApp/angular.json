@@ -63,6 +63,7 @@
                         "tsConfig": "tsconfig.json"
                     }
                 },
+<<<<<<< HEAD
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
@@ -104,6 +105,24 @@
                         ]
                     }
                 }
+=======
+            "serve": {
+                "builder": "@angular-devkit/build-angular:dev-server",
+                "configurations": {
+                    "development": {
+                        "buildTarget": "frontend:build:development",
+                        "proxyConfig": "proxy.json",
+                        "ssl": true,
+                        "sslKey": "certificates/server.key",
+                        "sslCert": "certificates/server.cert"
+                    },
+                    "production": {
+                        "buildTarget": "frontend:build:production"
+                    }
+                },
+                "defaultConfiguration": "development"
+            }
+>>>>>>> 258ee16be743fbb6e93d0b5e66b717496839ca18
             },
             "prefix": "app",
             "projectType": "application",
@@ -117,4 +136,8 @@
         }
     },
     "version": 1
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 258ee16be743fbb6e93d0b5e66b717496839ca18

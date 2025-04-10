@@ -14,6 +14,7 @@
         "zone.js": "0.15.0"
     },
     "devDependencies": {
+<<<<<<< HEAD
         "@angular-devkit/build-angular": "19.1.7",
         "@angular/cli": "19.1.7",
         "@angular/compiler-cli": "19.1.6",
@@ -24,6 +25,11 @@
         "karma-coverage": "^2.2.1",
         "karma-jasmine": "^5.1.0",
         "karma-jasmine-html-reporter": "^2.1.0",
+=======
+        "@angular/cli": "19.1.7",
+        "@angular/compiler-cli": "19.1.6",
+        "@angular-devkit/build-angular": "19.1.7",
+>>>>>>> 258ee16be743fbb6e93d0b5e66b717496839ca18
         "typescript": "5.7.3"
     },
     "browserslist": [
@@ -36,7 +42,11 @@
     ],
     "scripts": {
         "restore": "npm install",
+<<<<<<< HEAD
         "start": "ng serve --ssl --ssl-key certificates/server.key --ssl-cert certificates/server.cert",
+=======
+          "start": "ng serve --ssl --ssl-key certificates/server.key --ssl-cert certificates/server.cert",
+>>>>>>> 258ee16be743fbb6e93d0b5e66b717496839ca18
         "build": "ng build"
     }
 }

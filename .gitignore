@@ -348,4 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+<<<<<<< HEAD
 ClientApp/.angular/cache/
+=======
+>>>>>>> 258ee16be743fbb6e93d0b5e66b717496839ca18
