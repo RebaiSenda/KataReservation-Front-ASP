@@ -56,8 +56,8 @@ export default class PersonService {
   }
 
   private mapToBookings(bookingResponses: BookingResponse[]): Booking[] {
-    return bookingResponses.map(booking => ({
-      Id: booking.id, // Utiliser l'ID de la réponse plutôt qu'un index
+    return bookingResponses.map((booking, index) => ({
+      Id: booking.id || index, // Utiliser l'ID de la réponse ou l'index si ID n'existe pas
       RoomId: booking.roomId,
       PersonId: booking.personId,
       BookingDate: new Date(booking.bookingDate),

@@ -4,6 +4,7 @@ import { RouterOutlet } from "@angular/router";
 import { ManagementService } from './services/management.service';
 import { User } from './models/user';
 
+
 @Component({
     selector: "app",
     standalone: true, // Mark as a standalone component
