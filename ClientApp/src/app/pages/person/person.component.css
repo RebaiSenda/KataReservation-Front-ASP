@@ -1,0 +1,192 @@
+/* Styles généraux */
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+h3 {
+  color: #444;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+/* Styles pour le formulaire d'ajout de personne */
+.person-form {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.person-form input {
+  margin-right: 10px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.person-form button {
+  padding: 8px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.person-form button:hover {
+  background-color: #45a049;
+}
+
+.person-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Styles pour la liste des personnes */
+.person-list {
+  margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.person-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.person-list li {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.person-list li:last-child {
+  border-bottom: none;
+}
+
+.person-info {
+  display: flex;
+  align-items: center;
+}
+
+.person-name {
+  font-weight: 500;
+  margin-right: 15px;
+  color: #333;
+}
+
+.booking-badge {
+  background-color: #3498db;
+  color: white;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.person-actions button {
+  margin-left: 10px;
+  padding: 6px 12px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.3s;
+}
+
+.person-actions button:first-child {
+  background-color: #2196F3;
+}
+
+.person-actions button:last-child {
+  background-color: #f44336;
+}
+
+.person-actions button:hover {
+  opacity: 0.8;
+}
+
+.empty-list {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Styles pour le formulaire de modification */
+.edit-person {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-person input {
+  margin-right: 10px;
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: calc(50% - 10px);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-person button {
+  padding: 8px 15px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.edit-person button:last-child {
+  background-color: #9e9e9e;
+}
+
+.edit-person button:hover {
+  opacity: 0.8;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .person-form input,
+  .edit-person input {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .person-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .person-actions {
+    margin-top: 10px;
+    align-self: flex-end;
+  }
+}

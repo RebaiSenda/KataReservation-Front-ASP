@@ -1,0 +1,68 @@
+<h2>Gestion des Personnes</h2>
+
+<!-- Formulaire pour ajouter une nouvelle personne -->
+<div class="person-form">
+    <h3>Ajouter une Personne</h3>
+    <form (submit)="$event.preventDefault(); addPerson()">
+        <input
+            type="text"
+            [value]="newPerson.firstName"
+            (input)="updateFirstName($event)"
+            placeholder="Prénom"
+            required
+        />
+        <input
+            type="text"
+            [value]="newPerson.lastName"
+            (input)="updateLastName($event)"
+            placeholder="Nom"
+            required
+        />
+        <button type="submit" [disabled]="!newPerson.firstName || !newPerson.lastName">Ajouter</button>
+    </form>
+</div>
+
+<!-- Liste des personnes -->
+<div class="person-list">
+    <h3>Liste des Personnes</h3>
+    <ul>
+        <li *ngFor="let person of persons">
+            <div class="person-info">
+                <span class="person-name">{{ person.firstName }} {{ person.lastName }}</span>
+                <span *ngIf="hasBookings(person)" class="booking-badge">
+                    {{ getBookingsCount(person) }} réservation(s)
+                </span>
+            </div>
+            <div class="person-actions">
+                <button (click)="editPerson(person)">Modifier</button>
+                <button (click)="deletePerson(person.id)">Supprimer</button>
+            </div>
+        </li>
+    </ul>
+    <div *ngIf="persons.length === 0" class="empty-list">Aucune personne disponible.</div>
+</div>
+
+<!-- Formulaire pour modifier une personne -->
+<div class="edit-person" *ngIf="editingPerson">
+    <h3>Modifier la Personne</h3>
+    <form (submit)="$event.preventDefault(); updatePerson()">
+        <input
+            type="text"
+            [value]="editingPerson.firstName"
+            (input)="updateEditingFirstName($event)"
+            placeholder="Prénom"
+            required
+        />
+        <input
+            type="text"
+            [value]="editingPerson.lastName"
+            (input)="updateEditingLastName($event)"
+            placeholder="Nom"
+            required
+        />
+        <div class="form-actions">
+            <button type="submit" [disabled]="!editingPerson.firstName || !editingPerson.lastName">Mettre à jour</button>
+            <button type="button" (click)="cancelEdit()">Annuler</button>
+        </div>
+    </form>
+</div>

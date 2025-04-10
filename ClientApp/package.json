@@ -1,0 +1,42 @@
+{
+    "name": "frontend",
+    "version": "0.0.0",
+    "dependencies": {
+        "@angular/common": "19.1.6",
+        "@angular/compiler": "19.1.6",
+        "@angular/core": "19.1.6",
+        "@angular/forms": "19.1.6",
+        "@angular/platform-browser": "19.1.6",
+        "@angular/platform-browser-dynamic": "19.1.6",
+        "@angular/router": "19.1.6",
+        "rxjs": "7.8.1",
+        "uikit": "3.23.0",
+        "zone.js": "0.15.0"
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "19.1.7",
+        "@angular/cli": "19.1.7",
+        "@angular/compiler-cli": "19.1.6",
+        "@types/jasmine": "^5.1.7",
+        "jasmine-core": "^5.6.0",
+        "karma": "^6.4.4",
+        "karma-chrome-launcher": "^3.2.0",
+        "karma-coverage": "^2.2.1",
+        "karma-jasmine": "^5.1.0",
+        "karma-jasmine-html-reporter": "^2.1.0",
+        "typescript": "5.7.3"
+    },
+    "browserslist": [
+        "last 1 Chrome version",
+        "last 1 Edge version",
+        "last 1 Firefox version",
+        "last 1 Opera version",
+        "last 1 Safari version",
+        "not dead"
+    ],
+    "scripts": {
+        "restore": "npm install",
+        "start": "ng serve --ssl --ssl-key certificates/server.key --ssl-cert certificates/server.cert",
+        "build": "ng build"
+    }
+}
