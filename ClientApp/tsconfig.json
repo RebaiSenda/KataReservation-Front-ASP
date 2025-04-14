@@ -23,7 +23,8 @@
         "lib": [
             "ES2022",
             "dom"
-        ]
+        ],
+        "types": ["jasmine", "node"] // Ajouté pour inclure les types Jasmine
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,
@@ -32,11 +33,11 @@
         "strictInputAccessModifiers": true,
         "strictTemplates": true
     },
-    "files": [
-        "src/main.ts"
+    "include": [
+        "src/**/*.ts", // Inclure tous les fichiers TypeScript
+        "src/**/*.spec.ts" // Inclure les fichiers de test
     ],
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
+        "node_modules"
     ]
 }
