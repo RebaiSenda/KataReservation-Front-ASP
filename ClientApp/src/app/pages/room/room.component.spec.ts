@@ -15,6 +15,7 @@ describe('RoomComponent', () => {
   
   const mockRooms: Room[] = [
     { Id: 1, RoomName: 'Salle 1', Bookings: [] },
+    
     { Id: 2, RoomName: 'Salle 2', Bookings: [] }
   ];
 
