@@ -2,6 +2,17 @@
 <div class="booking-container">
     <h2>Système de réservation de salles</h2>
     
+    <!-- Indicateur de chargement -->
+    <div *ngIf="isLoading" class="loading-indicator">
+        <p>Chargement en cours...</p>
+    </div>
+    
+    <!-- Message d'erreur global -->
+    <div *ngIf="loadError" class="error-message">
+        <p>{{ loadError }}</p>
+        <button (click)="refreshData()" class="btn btn-primary">Réessayer</button>
+    </div>
+    
     <!-- Formulaire de création de réservation -->
     <div class="booking-form">
         <h3>Nouvelle réservation</h3>
@@ -47,7 +58,9 @@
             </div>
         </div>
         
-        <button (click)="createBooking()" class="btn btn-primary">Réserver</button>
+        <button (click)="createBooking()" class="btn btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Création en cours...' : 'Réserver' }}
+        </button>
         
         <!-- Message d'erreur en cas de conflit -->
         <div *ngIf="conflictMessage" class="conflict-message">
@@ -59,7 +72,7 @@
                     <button *ngFor="let slot of availableSlots" 
                             (click)="useAvailableSlot(slot)" 
                             class="slot-btn">
-                        {{ formatTime(slot) }} - {{ formatTime(slot + 1) }}
+                        {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
                     </button>
                 </div>
             </div>
@@ -69,9 +82,13 @@
     <!-- Liste des réservations existantes -->
     <div class="bookings-list">
         <h3>Réservations existantes</h3>
+        <button (click)="refreshData()" class="btn btn-outline-primary refresh-btn" [disabled]="isLoading">
+            {{ isLoading ? 'Actualisation...' : 'Actualiser' }}
+        </button>
         
         <div *ngIf="bookings && bookings.length > 0; else noBookings">
             <div class="booking-header">
+                <span>ID</span>
                 <span>Salle</span>
                 <span>Personne</span>
                 <span>Date</span>
@@ -80,18 +97,21 @@
             </div>
             
             <div *ngFor="let booking of bookings" class="booking-item">
+                <span>{{ booking.Id }}</span>
                 <span>{{ getRoomName(booking.RoomId) }}</span>
                 <span>{{ getPersonName(booking.PersonId) }}</span>
                 <span>{{ formatBookingDate(booking.BookingDate) }}</span>
                 <span>{{ formatTime(booking.StartSlot) }} - {{ formatTime(booking.EndSlot) }}</span>
                 <span>
-                    <button (click)="deleteBooking(booking.Id)" class="btn btn-danger">Supprimer</button>
+                    <button (click)="deleteBooking(booking.Id)" class="btn btn-danger" [disabled]="isLoading">
+                        {{ isLoading ? '...' : 'Supprimer' }}
+                    </button>
                 </span>
             </div>
         </div>
         
         <ng-template #noBookings>
-            <p class="no-bookings">Aucune réservation trouvée.</p>
+            <p class="no-bookings">{{ isLoading ? 'Chargement des réservations...' : 'Aucune réservation trouvée.' }}</p>
         </ng-template>
     </div>
 </div>

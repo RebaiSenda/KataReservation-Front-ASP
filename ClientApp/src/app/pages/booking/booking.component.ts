@@ -24,11 +24,15 @@ export default class BookingComponent implements OnInit {
     persons: Person[] = [];
     
     newBooking: Booking = this.initializeNewBooking();
-    availableSlots: number[] = [];
+    availableSlots: {start: number, end: number}[] = [];
     conflictMessage: string = '';
     
     // Pour la liaison avec le datepicker HTML
     bookingDateString: string = '';
+    
+    // Ajout de variables pour suivre l'état de chargement et les erreurs
+    isLoading: boolean = false;
+    loadError: string = '';
     
     constructor(
         private bookingService: BookingService,
@@ -43,6 +47,7 @@ export default class BookingComponent implements OnInit {
         this.bookingDateString = this.formatDateForInput(today);
         
         try {
+            this.isLoading = true;
             // Charger les données de référence d'abord
             await Promise.all([
                 this.loadRooms(),
@@ -53,7 +58,9 @@ export default class BookingComponent implements OnInit {
             await this.loadBookings();
         } catch (error) {
             console.error("Erreur lors de l'initialisation:", error);
-            // Éviter d'afficher une alerte au chargement initial
+            this.loadError = "Erreur lors du chargement des données. Veuillez rafraîchir la page.";
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -74,7 +81,7 @@ export default class BookingComponent implements OnInit {
             console.log("Salles chargées:", this.rooms.length);
         } catch (error) {
             console.error("Erreur lors de la récupération des salles:", error);
-            // Ne pas afficher d'alerte au chargement initial
+            throw error; // Propager l'erreur pour la gestion globale
         }
     }
 
@@ -84,7 +91,7 @@ export default class BookingComponent implements OnInit {
             console.log("Personnes chargées:", this.persons.length);
         } catch (error) {
             console.error("Erreur lors de la récupération des personnes:", error);
-            // Ne pas afficher d'alerte au chargement initial
+            throw error; // Propager l'erreur pour la gestion globale
         }
     }
 
@@ -92,18 +99,24 @@ export default class BookingComponent implements OnInit {
         try {
             const bookingsData = await firstValueFrom(this.bookingService.list());
             
-            // Vérifier si les données sont valides
+            // Debug: vérifier le résultat
+            console.log("Réservations chargées (données brutes):", bookingsData);
+            
+            // Vérification de validité et filtrage des données invalides
             if (!Array.isArray(bookingsData)) {
-                console.error("Format de données invalide:", bookingsData);
+                console.error("Format de données invalide pour les réservations:", bookingsData);
                 this.bookings = [];
                 return;
             }
             
-            this.bookings = bookingsData;
-            console.log("Réservations chargées:", this.bookings.length);
+            this.bookings = bookingsData.filter(booking => 
+                booking && typeof booking === 'object' && 
+                'Id' in booking && booking.Id !== null && booking.Id !== undefined);
+            
+            console.log("Réservations filtrées et validées:", this.bookings.length);
         } catch (error) {
             console.error("Erreur lors de la récupération des réservations:", error);
-            // Ne pas afficher d'alerte au chargement initial
+            this.loadError = "Erreur lors du chargement des réservations.";
             this.bookings = [];
         }
     }
@@ -114,16 +127,29 @@ export default class BookingComponent implements OnInit {
                 return;
             }
             
-            // Assurez-vous que la date est correctement formatée avant l'envoi
-            this.newBooking.BookingDate = new Date(this.bookingDateString);
+            // Conversion explicite de la chaîne de date en objet Date
+            try {
+                this.newBooking.BookingDate = new Date(this.bookingDateString);
+                if (isNaN(this.newBooking.BookingDate.getTime())) {
+                    throw new Error("Date invalide");
+                }
+            } catch (err) {
+                console.error("Erreur de conversion de date:", err);
+                this.modalService.alert("La date sélectionnée est invalide.");
+                return;
+            }
             
             this.clearMessages();
+            this.isLoading = true;
             
             console.log("Création de réservation:", this.newBooking);
-            await firstValueFrom(this.bookingService.create({ ...this.newBooking }));
+            const createdBooking = await firstValueFrom(this.bookingService.create({ ...this.newBooking }));
             
-            // Ensuite seulement recharger les réservations
-            await this.loadBookings();
+            console.log("Réservation créée avec succès:", createdBooking);
+            
+            // Ajouter directement la réservation créée à la liste des réservations existantes
+            // plutôt que de recharger toute la liste
+            this.bookings.push(createdBooking);
             
             this.modalService.alert("Réservation créée avec succès.");
             
@@ -144,6 +170,8 @@ export default class BookingComponent implements OnInit {
                 }
                 this.modalService.alert(errorMessage);
             }
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -156,11 +184,15 @@ export default class BookingComponent implements OnInit {
         
         try {
             if (confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) {
-                console.log("Suppression de la réservation:", bookingId); // Pour le débogage
-                await firstValueFrom(this.bookingService.delete(bookingId));
+                this.isLoading = true;
+                console.log("Suppression de la réservation:", bookingId);
                 
-                // Recharger les réservations après la suppression
-                await this.loadBookings();
+                await firstValueFrom(this.bookingService.delete(bookingId));
+                console.log("Suppression réussie pour ID:", bookingId);
+                
+                // Mise à jour de la liste locale sans refaire un appel API
+                this.bookings = this.bookings.filter(booking => booking.Id !== bookingId);
+                
                 this.modalService.alert("Réservation supprimée avec succès.");
             }
         } catch (error: any) {
@@ -172,6 +204,8 @@ export default class BookingComponent implements OnInit {
                 errorMessage = error.message;
             }
             this.modalService.alert(errorMessage);
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -228,9 +262,9 @@ export default class BookingComponent implements OnInit {
         this.availableSlots = [];
     }
 
-    useAvailableSlot(startSlot: number) {
-        this.newBooking.StartSlot = startSlot;
-        this.newBooking.EndSlot = startSlot + 1;
+    useAvailableSlot(slot: {start: number, end: number}) {
+        this.newBooking.StartSlot = slot.start;
+        this.newBooking.EndSlot = slot.end;
         this.clearMessages();
     }
 
@@ -256,7 +290,7 @@ export default class BookingComponent implements OnInit {
     getPersonName(personId: number): string {
         const person = this.persons.find(p => p.id === personId);
         if (!person) {
-            console.log("Personne non trouvée avec ID:", personId); // Pour le débogage
+            console.log("Personne non trouvée avec ID:", personId);
             return 'Personne inconnue';
         }
         return `${person.firstName} ${person.lastName}`;
@@ -284,5 +318,19 @@ export default class BookingComponent implements OnInit {
             month: '2-digit',
             year: 'numeric'
         });
+    }
+    
+    // Méthode pour recharger manuellement les données
+    async refreshData() {
+        try {
+            this.isLoading = true;
+            await this.loadBookings();
+            this.loadError = '';
+        } catch (error) {
+            console.error("Erreur lors du rechargement des données:", error);
+            this.loadError = "Erreur lors du rechargement des données.";
+        } finally {
+            this.isLoading = false;
+        }
     }
 }
